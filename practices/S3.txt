@@ -1,0 +1,91 @@
+Seminario 3
+
+HASH
+
+hash -> MD5 / SHA1 -> Algoritmos que hacen hash
+
+Utilizar openssl para cifrado
+
+Crear fich.txt
+
+Calculamos el hash(Resumen)
+
+openssl list-digest-command
+
+openssl dgst
+
+Para calcular huella -> openssl dgst -sha1 -out fich.txt.sha1 fich.txt
+
+El resultado de cat fich.txt.sha1 es el resultado de hacer el hash
+
+
+
+CIFRADO
+
+Hay dos posibilidades, simetricos y asimetricos
+
+simetricos: misma clave para cifrar que para descifrarn - Hace falta una clave
+
+asimetricos: clave publica y clave privada
+
+oppenssl list-cipher-algorithms lista los algoritmos de cifrado que hay
+
+openssl -enc nombrealgoritmo para cifrar -in ficheroentrada -out ficherocifrado
+
+para descifrar:
+
+openssl -enc -d nombrealgoritmo para cifrar -in ficherocifrado -out fichero descifrado
+
+CIFRADO ASIMETRICO
+
+hay dos claves, la parte publica es la que se puede compartir y la privada se la queda el propietario
+
+envias la clave publica al que corresponde y unicamente esa persona puede descifrar dicho mensaje
+
+para enviar un mensaje necesitas la clave publica y la privada
+
+
+para generar claves:
+    openssl genpkey -algorithm -> muestra los algoritmos de creacion de claves
+
+    uno de los mas comunes es RSA
+
+    openssl genpkey -algorithm RSA -out privada.key // clave privada
+
+    openssl pkey -in privada.key -pubout -out publica.key
+
+    genera la publica a partir de la privada
+
+
+enviar mensaje encriptado al dueño de la privada teniendo la publica
+
+openssl pkeyutl -pubin -encrypt -in fich.txt -out fichero.enc -inkey publica.key
+
+para descifrarlo:
+
+openssl pkeyutl -decrypt -in fichero.enc -out fichero.dec -inkey privada.key
+
+
+
+
+FIRMA ELECTRONICA
+
+FIRMAR
+Tenemos un documento que queremos cifrar, calculamos hash(Resumen) y lo ciframos con la clave privada
+
+VERIFICAR
+Se coge el documento que ha llegado, se calcula el hash, se desencripta el otro y si el hash es igual, no se ha modificado el original
+
+FIRMAR DOCUMENTO
+openssl pkeyutl -sign -in fich.txt -out fich.sign -inkey privada.key
+
+VERIFICAR DOCUMENTO
+openssl pkeyutl -verify -pubin -sigfile fich.sign -in fich.txt -inkey publica.key
+
+CREAR UN CERTIFICADO
+openssl req -new -key privada.key -out csr
+Rellenamos los datos que piden
+
+COMO FIRMAR UNA SOLICITUD CON EL CERTIFICADO
+el x509 es le formato del certificado
+openssl x509 -req -days 90 -in csr -signkey privada.key -out certificado.cer
